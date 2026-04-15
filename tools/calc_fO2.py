@@ -1,6 +1,6 @@
 import numpy as np
 
-from Gibbs import GibbsgasO2, GibbsmetalFe, GibbsmeltFeO
+from Gibbs import GibbsgasO2, GibbsmetalFe, GibbsmeltFeO, GibbsmeltFeO15
 from tools.constants import R
 
 
@@ -71,3 +71,30 @@ def get_delta_IW(P_GPa, T_K, n_FeO, n_melt, n_Fe, n_metal, gamma_FeO=1.0, gamma_
     fO2_model_bar = get_fO2_at_PT_from_IW_hirschmann2021(P_GPa, T_K, n_FeO, n_melt, n_Fe, n_metal, gamma_FeO, gamma_Fe)
     return np.log10(fO2_model_bar) - log10_fO2_IW_hirschmann2021(P_GPa, T_K)
 
+
+def log10_fO2_from_silicate_FeO_FeO15(T_K, x_FeO, x_FeO15):
+    """Return log10(fO2) from the silicate FeO1.5 <-> FeO redox equilibrium.
+
+    Uses Reaction 20 in the chemistry network:
+    4 FeO1.5 (silicate) <-> 4 FeO (silicate) + O2 (gas)
+
+    Assuming unit activity coefficients, the equilibrium relation gives
+    log10(fO2) directly from the silicate mole fractions and temperature.
+    """
+    temperature = np.asarray(T_K, dtype=float)
+    x_feo = np.asarray(x_FeO, dtype=float)
+    x_feo15 = np.asarray(x_FeO15, dtype=float)
+
+    scalar_go2 = np.vectorize(GibbsgasO2, otypes=[float])
+    scalar_gfeo = np.vectorize(GibbsmeltFeO, otypes=[float])
+    scalar_gfeo15 = np.vectorize(GibbsmeltFeO15, otypes=[float])
+    g_reaction = 4.0 * scalar_gfeo(temperature) + scalar_go2(temperature) - 4.0 * scalar_gfeo15(temperature)
+    with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
+        log10_fO2 = (4.0 * np.log(x_feo15 / x_feo) - (g_reaction / (R * temperature))) / np.log(10.0)
+    return np.where(np.isfinite(log10_fO2), log10_fO2, np.nan)
+
+
+def get_delta_IW_from_silicate_FeO_FeO15(P_GPa, T_K, x_FeO, x_FeO15):
+    """Return ΔIW for silicate redox computed from FeO/FeO1.5 and the IW buffer."""
+    log10_fO2_silicate = log10_fO2_from_silicate_FeO_FeO15(T_K, x_FeO, x_FeO15)
+    return log10_fO2_silicate - log10_fO2_IW_hirschmann2021(P_GPa, T_K)
