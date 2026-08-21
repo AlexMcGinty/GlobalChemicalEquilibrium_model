@@ -9,19 +9,26 @@ Files
 The initial conditions file, initial.dat
 ----------------------------------------
 
-There are two ways to set the initial conditions values. 
-The default option is to generated the initial conditions randomly at the beginning of the code.
-For that, prior values can be set in the :literal:`chem_input.dat` file.
+This file is used only by the solver to define the starting values for the optimization routine. It is
+not a separate physical-composition input file and does not define the model setup itself; it only sets
+the numerical starting state used to initialize the walkers.
 
-Otherwise, the initial conditions can be set in an initial conditions file, where the file name
-must be set in the :literal:`param.dat` file.
+There are two ways to set the initial conditions values for the solver. The default option is to generate
+the initial conditions randomly at the beginning of the code. For that, prior values can be set in the
+:literal:`chem_input.dat` file.
 
+Otherwise, the solver starting values can be set in an initial conditions file, where the file name must
+be set in the :literal:`param.dat` file.
 
-
-The file must contain initial values for every used variable in the :literal:`Equations.py` file.
-The file can contain empty lines and comment lined, starting with a :literal:`#`
+The file must contain one value for every used variable in the :literal:`Equations.py` file.
+The file can contain empty lines and comment lines, starting with a :literal:`#`.
 
 The units must agree with the implementation in the :literal:`Equations.py` file.
+
+In practice, :literal:`chem_input.dat` defines the model setup and constraints (elemental abundances,
+pressure, temperature, priors, etc.), while the initial conditions file provides the numerical starting
+point for the solver optimization. If the initial conditions file is omitted or set to ``-``, the code
+draws random values from the prior ranges instead.
 
 Example
 ^^^^^^^
