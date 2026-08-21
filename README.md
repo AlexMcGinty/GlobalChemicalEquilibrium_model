@@ -10,18 +10,3 @@ Based on the Chemical Equilibrium Code from Hilke Schlichting and Edward Young (
 
 
 [A Documentation can be found here](https://globalchemicalequilibrium-release.readthedocs.io/en/latest/)
-
-
-
-This release repository is generated automatically from the main development repository.
-
-Do not push changes in here, since they will be deleted at the next release update. Push changes only in the 
-development repository. 
-
-
-The release version only includes the standard version and the carbon version of the chemical network equations.
-Other versions are available on request from the authors.
-
-
-
-A documentation is available [here](...) .
