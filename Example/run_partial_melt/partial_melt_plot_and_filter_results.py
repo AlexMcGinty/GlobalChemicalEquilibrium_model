@@ -15,7 +15,7 @@ from Example.plots.helpers.plot_constants import GAS_COLUMNS, METAL_COLUMNS, PAR
 from Example.plots.helpers.plotting_helpers import ensure_reduced_phase_columns, load_atomic_weights, weighted_sum
 from Example.plots.plot_results import plot_results
 from Example.run_partial_melt.partial_melt_science import compute_partial_melt_pressure_bar
-from tools.constants import repo_root
+from tools.paths import repo_root
 
 
 PARTIAL_MELT_PLOT_AXIS_LIST = ["f_melt"]

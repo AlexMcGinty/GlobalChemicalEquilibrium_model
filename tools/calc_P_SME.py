@@ -1,7 +1,9 @@
 import numpy as np
 from sympy import log as sympy_log
 
-from tools.constants import G, M_earth, R_earth, composition_from_chem_input, repo_root, select_scaling_constants
+from tools.constants import G, M_earth, R_earth
+from tools.chemistry import composition_from_chem_input, select_scaling_constants
+from tools.paths import repo_root
 
 
 def _resolve_version_folder(version: str):

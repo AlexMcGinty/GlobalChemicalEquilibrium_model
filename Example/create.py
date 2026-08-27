@@ -8,7 +8,7 @@ import time
 from scipy.stats import loguniform
 import os
 import shutil
-from tools.constants import repo_root
+from tools.paths import repo_root
 
 # written by Caroline Dorn, 2025, Gibbs free energies from Ed Young
 # updated by Simon Grimm

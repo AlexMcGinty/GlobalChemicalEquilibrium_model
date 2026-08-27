@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from tools.constants import repo_root
+from tools.paths import repo_root
 
 def find_min(input_dir=None, verbose=True):
 	"""Find the minimum chi^2 solution from each case's output.dat.

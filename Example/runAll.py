@@ -25,7 +25,7 @@ import numpy as np
 import pandas as pd
 
 from Example.plots.helpers.plotting_helpers import AXIS_ALIASES, AXIS_DEFINITIONS, axis_keys
-from tools.constants import repo_root
+from tools.paths import repo_root
 
 
 # ---------------------------------------------------------------------------

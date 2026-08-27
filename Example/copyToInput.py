@@ -1,6 +1,6 @@
 import os
 import shutil
-from tools.constants import repo_root
+from tools.paths import repo_root
 
 
 def _case_local_gibbs_wrapper() -> str:

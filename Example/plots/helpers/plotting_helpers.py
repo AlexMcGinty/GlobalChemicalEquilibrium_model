@@ -13,7 +13,7 @@ import pandas as pd
 
 from . import plot_constants
 from .plot_constants import GAS_COLUMNS, GCE_FILENAME, METAL_COLUMNS, PARTIAL_MELT_GCE_LABEL, PARTIAL_MELT_GCE_XPOS, PARTIAL_MELT_PERCENT_TICKS, PARTIAL_MELT_XLIM, PLOT_CHI2_MAX, SILICATE_COLUMNS
-from tools.constants import repo_root
+from tools.paths import repo_root
 
 
 def _best_effort_numeric_df(df: pd.DataFrame) -> pd.DataFrame:

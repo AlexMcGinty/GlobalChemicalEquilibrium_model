@@ -26,7 +26,7 @@ from Example.plots.helpers.plot_constants import CHI_DAT_FILENAME, ELEMENTS, MIN
                                         GAS_COLUMNS, PARTIAL_MELT_VARIABLE_COLUMNS_NO_REFRACTORY, \
                                         PARTIAL_MELT_VARIABLE_COLUMNS_WITH_REFRACTORY, \
                                         RESULTS_DAT_FILENAME, SILICATE_COLUMNS, SUMMARY_CHEM_INPUT_FILENAME    
-from tools.constants import repo_root
+from tools.paths import repo_root
 from Example.run_partial_melt.partial_melt_plot_and_filter_results import get_partial_melt_results, plot_partial_melt
 from Example.run_partial_melt.partial_melt_science import add_frozen_core_columns, build_recorded_partial_melt_step_state, \
                                         compute_active_silicate_mass, compute_next_partial_melt_state, \

@@ -15,7 +15,7 @@ matplotlib.use("Agg")  # avoid GUI backend issues when running as a script
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import Line2D
-from tools.constants import repo_root
+from tools.paths import repo_root
 
 from Example.plots.helpers.science_postprocessing import compute_phase_mass_fractions, prepare_mole_fractions, prepare_phase_fractions
 from Example.plots.helpers.plot_constants import BOLD_SPECIES_LABELS, EPSILON, GAS_LINE_ORDER, LATEX_PLOT, \

@@ -34,7 +34,7 @@ from .helpers.science_postprocessing import (
     gce_element_weight_fraction_scores,
     gce_phase_mole_fraction_scores,
 )
-from tools.constants import repo_root
+from tools.paths import repo_root
 
 plt.rcParams.update(PLOT_RCPARAMS)
 

@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
-from tools.constants import repo_root
+from tools.paths import repo_root
 from tools.calc_fO2 import (
     log10_fO2_IW_hirschmann2021,
     get_fO2_at_PT_from_IW_hirschmann2021,
