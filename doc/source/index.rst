@@ -29,6 +29,7 @@ Based on the Chemical Equilibrium Code from Hilke Schlichting and Edward Young (
    License.rst
    Requirements.rst
    Versions.rst
+   PartialMelt.rst
    ChemicalNetwork.rst
    Tutorial.rst
    Files.rst
@@ -36,4 +37,3 @@ Based on the Chemical Equilibrium Code from Hilke Schlichting and Edward Young (
    Gibbs.rst
 
 .. bibliography::
-
