@@ -1,0 +1,22 @@
+# Chemical network matching the current compiled solver (MgSiO3 melt, H2 envelope).
+# To add a species, add its formula to the right phase. Stoichiometry and molar
+# mass are worked out from the formula. Use {name: X, formula: Y} if the solver's
+# column name isn't a plain formula.
+name: MgSiO3_H2
+mole_scale: 1.0e23            # solver works in units of 1e23 mol
+element_key: "n{el}"          # how element totals are named in chem_input.dat
+elements: [Si, Mg, O, Fe, H, Na, C]   # order written to chem_input.dat
+
+phases:
+  gas:
+    column_suffix: gas        # solver output columns are e.g. H2_gas
+    moles_column: Moles_atm
+    species: [H2, H2O, CO, CO2, CH4, O2, Fe, Mg, SiO, Na, SiH4]
+  silicate:
+    column_suffix: silicate
+    moles_column: Moles_silicate
+    species: [MgO, SiO2, MgSiO3, FeO, FeSiO3, Na2O, Na2SiO3, H2, H2O, CO, CO2]
+  metal:
+    column_suffix: metal
+    moles_column: Moles_metal
+    species: [Fe, Si, O, H]

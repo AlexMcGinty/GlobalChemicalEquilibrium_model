@@ -12,7 +12,7 @@ nC = 0.1164707804247013
 # Other parameters
 
 Mplanet_Mearth = 0.50499144
-T_AMOI = 4000
+T_AMOI = 4000.0
 T_SME = 4500
 
 

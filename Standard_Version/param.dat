@@ -1,7 +1,7 @@
 # General parameters
 Gibbs energy file = ../Gibbs.py
 Initial conditions file = -
-Output file = output.dat
+Output file = /Users/mcgintya/Documents/Python_scripts/GlobalChemicalEquilibrium_model/Standard_Version/runs/TOI_561b/Testing/MgSiO3/1000_bar/TOI_561b_H2_Ps_100_Ts_4000.dat
 outputInterval = 10000
 Nwalker = 100
 nSteps = 150000
@@ -10,5 +10,5 @@ nBestSolutions = 1
 method = 2
 
 # Adam solver parameters
-eta = 0.4
+eta = 0.1
 lambda_reg = 0.0001
