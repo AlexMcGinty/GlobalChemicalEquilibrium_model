@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from .composition import BulkState
+from .composition import BulkState, Planet
 from .network import Network
 
 
@@ -41,6 +41,15 @@ def write_element_totals(path: Path, state: BulkState, strict: bool = True) -> N
     net = state.network
     set_keys(path, {net.element_key.format(el=el): n for el, n in state.element_moles.items()},
              strict=strict)
+
+
+def write_planet_mass(path: Path, planet: Planet, key: str = "Mplanet_Mearth") -> None:
+    """Write the planet mass (Earth masses) into chem_input.dat.
+
+    The solver uses this to turn the atmospheric mass fraction into a surface
+    pressure, so it has to match planet.mass_earth from the run YAML.
+    """
+    set_keys(path, {key: planet.mass_earth}, strict=True)
 
 
 def initial_values(state: BulkState) -> dict[str, float]:

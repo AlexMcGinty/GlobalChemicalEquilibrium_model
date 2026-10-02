@@ -1,0 +1,121 @@
+diff --git a/gce_tools_package/01_initial_composition.ipynb b/gce_tools_package/01_initial_composition.ipynb
+index 630ca43..41f944d 100644
+--- a/gce_tools_package/01_initial_composition.ipynb
++++ b/gce_tools_package/01_initial_composition.ipynb
+@@ -19,7 +19,7 @@
+    "metadata": {},
+    "outputs": [],
+    "source": [
+-    "from gce_tools import RunConfig, write_element_totals, write_initial\n",
++    "from gce_tools import RunConfig, write_initial\n",
+     "\n",
+     "cfg = RunConfig.from_yaml(\"run_toi561b.yaml\")\n",
+     "state = cfg.initial_state()\n",
+@@ -67,7 +67,7 @@
+     "WRITE = False   # set True to overwrite the files in cfg.solver.base_dir\n",
+     "\n",
+     "if WRITE:\n",
+-    "    write_element_totals(cfg.solver.path(\"chem_input\"), state)\n",
++    "    cfg.write_chem_input(state)   # element totals + Mplanet_Mearth\n",
+     "    write_initial(cfg.solver.path(\"initial\"), state, update_only=True)\n",
+     "    print(\"Written to\", cfg.solver.base_dir)"
+    ]
+diff --git a/gce_tools_package/gce_tools/__init__.py b/gce_tools_package/gce_tools/__init__.py
+index b1c29fb..6fff7b9 100644
+--- a/gce_tools_package/gce_tools/__init__.py
++++ b/gce_tools_package/gce_tools/__init__.py
+@@ -1,6 +1,6 @@
+ """Tools for setting up and running the Global Chemical Equilibrium solver."""
+ from .network import Network, parse_formula, ATOMIC_MASSES
+ from .composition import Planet, BulkState, initial_state, state_from_row
+-from .io import (set_keys, write_element_totals, write_initial, read_solver_output,
++from .io import (set_keys, write_element_totals, write_planet_mass, write_initial, read_solver_output,
+                  check_columns, best_converged_row)
+ from .grid import RunConfig, SolverConfig, GridConfig, run_grid, run_solver_at
+diff --git a/gce_tools_package/gce_tools/grid.py b/gce_tools_package/gce_tools/grid.py
+index 2d49607..707cab0 100644
+--- a/gce_tools_package/gce_tools/grid.py
++++ b/gce_tools_package/gce_tools/grid.py
+@@ -10,8 +10,8 @@ import pandas as pd
+ import yaml
+ 
+ from .composition import Planet, initial_state, state_from_row, BulkState
+-from .io import (set_keys, write_element_totals, write_initial, read_solver_output,
+-                 check_columns, best_converged_row)
++from .io import (set_keys, write_element_totals, write_planet_mass, write_initial,
++                 read_solver_output, check_columns, best_converged_row)
+ from .network import Network
+ 
+ 
+@@ -23,6 +23,7 @@ class SolverConfig:
+     param: str = "param.dat"
+     initial: str = "initial.dat"
+     temperature_key: str = "T_AMOI"
++    mass_key: str = "Mplanet_Mearth"
+     output_key: str = "Output file"
+     eta_key: str = "eta"
+ 
+@@ -85,6 +86,12 @@ class RunConfig:
+     def initial_state(self) -> BulkState:
+         return initial_state(self.network, self.planet, self.guess, self.floor)
+ 
++    def write_chem_input(self, state: BulkState) -> None:
++        """Write element totals and the planet mass into chem_input.dat."""
++        path = self.solver.path("chem_input")
++        write_element_totals(path, state)
++        write_planet_mass(path, self.planet, self.solver.mass_key)
++
+     @property
+     def run_dir(self) -> Path:
+         d = Path(self.grid.run_dir)
+@@ -110,7 +117,8 @@ def run_solver_at(cfg: RunConfig, T: float) -> pd.Series | None:
+     s = cfg.solver
+     out_file = cfg.output_file(T)
+     set_keys(s.path("param"), {s.eta_key: cfg.grid.eta(T)}, strict=False)
+-    set_keys(s.path("chem_input"), {s.temperature_key: float(T)})
++    set_keys(s.path("chem_input"), {s.temperature_key: float(T),
++                                    s.mass_key: cfg.planet.mass_earth})
+     set_keys(s.path("param"), {s.output_key: out_file})
+     out_file.unlink(missing_ok=True)
+ 
+diff --git a/gce_tools_package/gce_tools/io.py b/gce_tools_package/gce_tools/io.py
+index f132cbc..acea17f 100644
+--- a/gce_tools_package/gce_tools/io.py
++++ b/gce_tools_package/gce_tools/io.py
+@@ -7,7 +7,7 @@ from pathlib import Path
+ 
+ import pandas as pd
+ 
+-from .composition import BulkState
++from .composition import BulkState, Planet
+ from .network import Network
+ 
+ 
+@@ -43,6 +43,15 @@ def write_element_totals(path: Path, state: BulkState, strict: bool = True) -> N
+              strict=strict)
+ 
+ 
++def write_planet_mass(path: Path, planet: Planet, key: str = "Mplanet_Mearth") -> None:
++    """Write the planet mass (Earth masses) into chem_input.dat.
++
++    The solver uses this to turn the atmospheric mass fraction into a surface
++    pressure, so it has to match planet.mass_earth from the run YAML.
++    """
++    set_keys(path, {key: planet.mass_earth}, strict=True)
++
++
+ def initial_values(state: BulkState) -> dict[str, float]:
+     """Species fractions and phase moles keyed by solver column name."""
+     vals = {}
+diff --git a/gce_tools_package/run_toi561b.yaml b/gce_tools_package/run_toi561b.yaml
+index 3cdb304..dc4263f 100644
+--- a/gce_tools_package/run_toi561b.yaml
++++ b/gce_tools_package/run_toi561b.yaml
+@@ -25,6 +25,7 @@ solver:
+   param: param.dat
+   initial: initial.dat
+   temperature_key: T_AMOI
++  mass_key: Mplanet_Mearth       # planet.mass_earth is written here
+   output_key: Output file
+   eta_key: eta
+ 

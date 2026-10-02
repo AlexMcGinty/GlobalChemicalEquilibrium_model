@@ -10,8 +10,8 @@ import pandas as pd
 import yaml
 
 from .composition import Planet, initial_state, state_from_row, BulkState
-from .io import (set_keys, write_element_totals, write_initial, read_solver_output,
-                 check_columns, best_converged_row)
+from .io import (set_keys, write_element_totals, write_planet_mass, write_initial,
+                 read_solver_output, check_columns, best_converged_row)
 from .network import Network
 
 
@@ -23,6 +23,7 @@ class SolverConfig:
     param: str = "param.dat"
     initial: str = "initial.dat"
     temperature_key: str = "T_AMOI"
+    mass_key: str = "Mplanet_Mearth"
     output_key: str = "Output file"
     eta_key: str = "eta"
 
@@ -85,6 +86,12 @@ class RunConfig:
     def initial_state(self) -> BulkState:
         return initial_state(self.network, self.planet, self.guess, self.floor)
 
+    def write_chem_input(self, state: BulkState) -> None:
+        """Write element totals and the planet mass into chem_input.dat."""
+        path = self.solver.path("chem_input")
+        write_element_totals(path, state)
+        write_planet_mass(path, self.planet, self.solver.mass_key)
+
     @property
     def run_dir(self) -> Path:
         d = Path(self.grid.run_dir)
@@ -110,7 +117,8 @@ def run_solver_at(cfg: RunConfig, T: float) -> pd.Series | None:
     s = cfg.solver
     out_file = cfg.output_file(T)
     set_keys(s.path("param"), {s.eta_key: cfg.grid.eta(T)}, strict=False)
-    set_keys(s.path("chem_input"), {s.temperature_key: float(T)})
+    set_keys(s.path("chem_input"), {s.temperature_key: float(T),
+                                    s.mass_key: cfg.planet.mass_earth})
     set_keys(s.path("param"), {s.output_key: out_file})
     out_file.unlink(missing_ok=True)
 
