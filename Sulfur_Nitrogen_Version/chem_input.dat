@@ -12,8 +12,8 @@ nN = 2.2537198353889134
 # Other parameters
 
 Mplanet_Mearth = 2.24
-T_AMOI = 2000.0
-T_SME = 3500
+T_AMOI = 2500.0
+T_SME = 4500
 Pstd = 1.0
 
 # Boundaries

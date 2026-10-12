@@ -1,42 +1,102 @@
+# =============================================================================
 # One file per model run: network, planet, initial guess, solver paths, grid.
-network: networks/mgsio3_h2.yaml
+# Read by RunConfig.from_yaml("run_toi561b.yaml").
+# =============================================================================
 
+# Chemical network definition (phases -> species). A relative path is resolved
+# from the folder this YAML file is in, not from the working directory.
+# The network must match the species compiled into the solver (Equations.py),
+# otherwise check_columns() stops with a list of missing columns.
+network: networks/S_N_network.yaml
+
+
+# -----------------------------------------------------------------------------
+# Planet bulk properties. Used to turn mass fractions into moles per phase,
+# and from those into the element totals (nSi, nMg, ...) for chem_input.dat.
+# -----------------------------------------------------------------------------
 planet:
-  name: TOI_561b
-  mass_earth: 2.24
-  radius_earth: 1.42
-  surface_pressure_bar: 1000
-  metal_mass_fraction: 0.2466
-  # atm_mass_fraction: 1.0e-4   # uncomment to set directly instead of from pressure
+  name: TOI_561b                # label only; used in output file names ({planet})
+  mass_earth: 2.24              # planet mass [Earth masses]. Sets the total mass
+                                # budget and is written to chem_input.dat as
+                                # Mplanet_Mearth (the solver's pressure law uses it)
+  radius_earth: 1.42            # planet radius [Earth radii]. Only used by gce_tools
+                                # for g and surface area (pressure <-> atm mass).
+                                # The compiled solver does NOT see this value.
+  surface_pressure_bar: 1000    # target surface pressure [bar] of the INITIAL
+                                # inventory. Sets the atmospheric mass fraction via
+                                # AMF = P * 4 pi R^2 / (M g). The equilibrium pressure
+                                # will differ (gas dissolves/outgasses).
+  metal_mass_fraction: 0.2466   # metal (core) mass fraction of the planet.
+                                # Silicate fraction = 1 - AMF - metal_mass_fraction.
+  # atm_mass_fraction: 1.0e-4   # uncomment to set the AMF directly; this then
+                                # overrides surface_pressure_bar
 
-# Mole fractions per phase. Leave a species out to give it `floor`;
-# set it to 0 to keep it at exactly 0. Each phase is renormalised.
+
+# -----------------------------------------------------------------------------
+# Initial guess: mole fractions per phase.
+# Leave a species out to give it `floor`; set it to 0 to keep it at exactly 0.
+# Each phase is renormalised to sum to 1 after the floor values are added.
+# Phase and species names must match the network file.
+# -----------------------------------------------------------------------------
 initial_guess:
-  gas:      {H2: 0.999, H2O: 0.001}
+  gas:      {H2 : 0.999}
   metal:    {Fe: 0.999}
   silicate: {MgO: 0.032, SiO2: 0.011, MgSiO3: 0.9211, FeO: 0.0005,
              FeSiO3: 0.0005, Na2O: 0.007, Na2SiO3: 0.001}
-floor: 1.0e-6
 
+# Mole fraction given to every species not listed above (default 1e-9 if this
+# line is removed). Keeps log(x) finite for the solver. Note that it also adds
+# a small amount of every element (e.g. C via CO/CO2/CH4) to the inventory.
+floor: 1.0e-3
+
+
+# -----------------------------------------------------------------------------
+# Solver location and the names of the keys gce_tools edits in its input files.
+# -----------------------------------------------------------------------------
 solver:
-  base_dir: /Users/mcgintya/Documents/Python_scripts/GlobalChemicalEquilibrium_model/Standard_Version
-  executable: ./solver
-  chem_input: chem_input.dat
-  param: param.dat
-  initial: initial.dat
-  temperature_key: T_AMOI
-  mass_key: Mplanet_Mearth       # planet.mass_earth is written here
-  output_key: Output file
-  eta_key: eta
+  base_dir: /Users/mcgintya/Documents/Python_scripts/GlobalChemicalEquilibrium_model/Sulfur_Nitrogen_Version
+                                # folder holding the compiled solver and its input
+                                # files; the solver is run with this as cwd
+  executable: ./solver          # command to run, relative to base_dir
+  chem_input: chem_input.dat    # element totals, T_AMOI, Mplanet_Mearth, bounds, priors
+  param: param.dat              # run settings (output file, eta, walkers, IC file, ...)
+  initial: initial.dat          # starting composition. Only read by the solver if
+                                # param.dat has "Initial conditions file = initial.dat";
+                                # with "-" it is ignored and random priors are used
+  temperature_key: T_AMOI       # key in chem_input.dat set to each grid temperature
+  mass_key: Mplanet_Mearth      # key in chem_input.dat; planet.mass_earth is written here
+  output_key: Output file       # key in param.dat set to each run's output path
+  eta_key: eta                  # key in param.dat for the optimiser learning rate
+                                # (set from grid.eta_schedule; warns if not found)
 
+
+# -----------------------------------------------------------------------------
+# Surface-temperature (T_AMOI) grid. Runs are done in order, low to high T.
+# -----------------------------------------------------------------------------
 grid:
-  T_start: 2500
-  T_end: 4000
-  T_step: 100
-  tol: 1.0e-8
-  run_dir: /Users/mcgintya/Documents/Python_scripts/GlobalChemicalEquilibrium_model/Standard_Version/runs/TOI_561b/Testing/MgSiO3/1000_bar
-  output_name: "{planet}_H2_Ps_{Ps:.0f}_Ts_{T}.dat"   # matches your existing files
-  update_chem_input: false
-  warm_start_initial: true
-  stop_on_failure: true
+  T_start: 2500                 # first temperature [K]
+  T_end: 4000                   # last temperature [K] (inclusive)
+  T_step: 100                   # step [K]
+  tol: 1.0e-8                   # a run counts as converged if any output row has
+                                # chi^2 <= tol (the last such row is used). Runs whose
+                                # output file already meets this are skipped.
+  run_dir: /Users/mcgintya/Documents/Python_scripts/GlobalChemicalEquilibrium_model/Sulfur_Nitrogen_Version/runs/TOI_561b/Results/MgSiO3_melt/H2_atm/1000_bar_high_dT
+                                # where output files go (created if missing). A relative
+                                # path is taken relative to solver.base_dir. Keep the full
+                                # output path under 160 characters: the solver's filename
+                                # buffer overflows beyond that.
+  output_name: "{planet}_H2_Ps_{Ps:.0f}_Ts_{T}.dat"
+                                # output file name. Placeholders: {planet}, {network},
+                                # {Ps} (planet.surface_pressure_bar), {T} (integer K)
+  update_chem_input: false      # true: after each converged T, write that solution's
+                                # element totals back into chem_input.dat
+  warm_start_initial: true      # true: after each converged T, write that solution to
+                                # initial.dat as the next run's starting point
+                                # (needs the IC file set in param.dat, see solver.initial)
+  stop_on_failure: true         # true: stop the sweep at the first non-converged T;
+                                # false: skip it and carry on from the last good state
   eta_schedule: [[2000, 0.4], [2500, 0.2], [null, 0.1]]
+                                # learning rate by temperature: [T_upper, eta] pairs,
+                                # checked in order, first with T < T_upper wins;
+                                # null = all higher temperatures.
+                                # Here: T<2000 -> 0.4, 2000-2499 -> 0.2, >=2500 -> 0.1
