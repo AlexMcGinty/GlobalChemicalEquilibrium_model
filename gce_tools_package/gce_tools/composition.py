@@ -78,6 +78,16 @@ class BulkState:
         m_atm_kg = self.phase_masses_g()[atm_phase] / 1e3
         return m_atm_kg * planet.gravity / planet.area_m2 / 1e5
 
+    def solver_surface_pressure_bar(self, planet: Planet, atm_phase: str = "gas") -> float:
+        """The pressure the compiled solver itself uses in the gas equilibria (SECTION 5 of
+        Equations.py): f = M_atm / M_total from the phase masses, then
+        P = 1.2e6 bar * f/(1-f) * (Mplanet_Mearth * (1-f))**(2/3).
+        That law assumes Earth bulk density (R = M**(1/3)), so it differs from
+        surface_pressure_bar(), which uses the nominal radius."""
+        masses = self.phase_masses_g()
+        f = masses[atm_phase] / sum(masses.values())
+        return 1.2e6 * f / (1.0 - f) * (planet.mass_earth * (1.0 - f)) ** (2.0 / 3.0)
+
     def ratio(self, num: str, den: str) -> float:
         el = self.element_moles
         return el[num] / el[den]
@@ -102,6 +112,8 @@ class BulkState:
             for p, m in masses.items():
                 lines.append(f"mass fraction {p:<9} = {m / planet.mass_g:.6e}")
             lines.append(f"sum of element masses / planet mass = {total / planet.mass_g:.10f}")
+            lines.append(f"surface pressure (nominal R)   = {self.surface_pressure_bar(planet):.4g} bar")
+            lines.append(f"surface pressure (solver law)  = {self.solver_surface_pressure_bar(planet):.4g} bar")
         return "\n".join(lines)
 
 

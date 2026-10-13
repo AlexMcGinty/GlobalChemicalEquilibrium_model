@@ -233,7 +233,7 @@ m4 = 1.0 - (var['Moles_metal'] * var['H_metal'] + var['Moles_silicate'] * (2.0 *
 
 m5 = 1.0 - (var['Moles_silicate'] * (2.0 * var['Na2O_silicate'] + 2.0 * var['Na2SiO3_silicate']) + var['Moles_atm'] * var['Na_gas']) / nNa
 
-m6 = 1.0 - (var['Moles_metal'] * var['C_metal'] + var['Moles_silicate'] * (var['CO_silicate'] + var['CO2_silicate']) + var['Moles_atm'] * (var['CO2_gas'] + var['CH4_gas'] + var['CO_gas'])) / nC
+m6 = 1.0 - (var['Moles_metal'] * var['C_metal'] + var['Moles_silicate'] * (var['CO_silicate'] + var['CO2_silicate']) + var['Moles_atm'] * (var['CO2_gas'] + var['CH4_gas'] + var['CO_gas'] + var['HCN_gas'])) / nC
 
 m7 = 1.0 - (var['Moles_silicate'] * (var['FeS_silicate'] + var['FeSO4_silicate']) + var['Moles_atm'] * (var['SO2_gas'] + var['H2S_gas']) + var['Moles_metal'] * var['S_metal']) / nS
 

@@ -165,10 +165,10 @@ def run_grid(cfg: RunConfig) -> pd.DataFrame:
         # mass-conservation diagnostics
         rec["M_total_over_M_planet"] = state.total_mass_g() / cfg.planet.mass_g
         rec["P_surface_bar"] = state.surface_pressure_bar(cfg.planet)
+        rec["P_surface_solver_bar"] = state.solver_surface_pressure_bar(cfg.planet)
         for p, m in state.phase_masses_g().items():
             rec[f"mass_frac_{p}"] = m / cfg.planet.mass_g
         results.append(rec)
 
     print("\nDone.")
     return pd.DataFrame(results)
-

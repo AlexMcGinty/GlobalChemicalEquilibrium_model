@@ -1,9 +1,9 @@
 # General parameters
 Gibbs energy file = ../Gibbs.py
 Initial conditions file = /Users/mcgintya/Documents/Python_scripts/GlobalChemicalEquilibrium_model/Sulfur_Nitrogen_Version/initial.dat
-Output file = /Users/mcgintya/Documents/Python_scripts/GlobalChemicalEquilibrium_model/Sulfur_Nitrogen_Version/runs/TOI_561b/Results/MgSiO3_melt/H2_atm/1000_bar_high_dT/TOI_561b_H2_Ps_1000_Ts_2500.dat
+Output file = /Users/mcgintya/Documents/Python_scripts/GlobalChemicalEquilibrium_model/Sulfur_Nitrogen_Version/runs/TOI_561b/Results/MgSiO3_melt/H2_atm/1_bar/TOI_561b_H2_Ps_1_Ts_4000.dat
 outputInterval = 10000
-Nwalker = 100
+Nwalker = 200
 nSteps = 150000
 nIterations = 2
 nBestSolutions = 1

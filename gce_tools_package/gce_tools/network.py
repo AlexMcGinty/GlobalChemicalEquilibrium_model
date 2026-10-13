@@ -21,15 +21,25 @@ ATOMIC_MASSES: dict[str, float] = {
     "Ti": 47.867, "Cr": 51.9961, "Mn": 54.93804, "Fe": 55.845, "Ni": 58.6934,
 }
 
-_TOKEN = re.compile(r"[A-Z][a-z]?|\(|\)|\d+")
+_TOKEN = re.compile(r"[A-Z][a-z]?|\(|\)|\d+(?:\.\d+)?")
 
 
-def parse_formula(formula: str) -> dict[str, int]:
-    """'Na2SiO3' -> {'Na': 2, 'Si': 1, 'O': 3}. Supports parentheses, e.g. 'Mg2(SiO4)'."""
+def _is_number(tok: str) -> bool:
+    return tok[0].isdigit()
+
+
+def _number(tok: str) -> float:
+    x = float(tok)
+    return int(x) if x.is_integer() else x
+
+
+def parse_formula(formula: str) -> dict[str, float]:
+    """'Na2SiO3' -> {'Na': 2, 'Si': 1, 'O': 3}. Supports parentheses, e.g. 'Mg2(SiO4)',
+    and fractional stoichiometry, e.g. 'FeO1.5' -> {'Fe': 1, 'O': 1.5}."""
     tokens = _TOKEN.findall(formula)
     if "".join(tokens) != formula:
         raise ValueError(f"Could not parse formula {formula!r}")
-    stack: list[dict[str, int]] = [{}]
+    stack: list[dict[str, float]] = [{}]
     i = 0
     while i < len(tokens):
         tok = tokens[i]
@@ -38,10 +48,10 @@ def parse_formula(formula: str) -> dict[str, int]:
         if tok == "(":
             stack.append({})
             continue
-        if tok.isdigit():
+        if _is_number(tok):
             raise ValueError(f"Unexpected number in formula {formula!r}")
-        if i < len(tokens) and tokens[i].isdigit():
-            mult = int(tokens[i])
+        if i < len(tokens) and _is_number(tokens[i]):
+            mult = _number(tokens[i])
             i += 1
         if tok == ")":
             if len(stack) == 1:

@@ -1218,7 +1218,7 @@ Pstd = 1.0  # bar
 dH = 29344.0      # J/mol
 dS = -121.0       # J/mol/K
 dV = 4.0          # J/bar
-GRT25 = -(dH - TK*dS + Pstd*dV) / (R*TK)
+GRT25 = (dH - TK*dS + Pstd*dV) / (R*TK)
 
 # ------------------------------------
 # Reaction 26: 3 H2 (gas) + N2 (gas) <-> 2 NH3 (gas)
